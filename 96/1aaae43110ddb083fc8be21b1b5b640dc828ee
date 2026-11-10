@@ -1,0 +1,33 @@
+crates/rune/src/platform/macos/surface.rs
+  s_a56043ba303c80::t_5eaae8cd31e1d6 34
+crates/rune/src/platform/macos/surface_tests.rs
+  s_a56043ba303c80::t_19b78c112f1135 28-43
+crates/rune/src/window.rs
+  s_a56043ba303c80::t_35fb996bdde717 46
+crates/rune/src/window/create.rs
+  s_a56043ba303c80::t_a54748c894aa52 234
+crates/rune/src/window/draw.rs
+  s_a56043ba303c80::t_3e73643bb9aed8 364,366-368,370,383-384,387-394
+crates/rune/src/window/redraw.rs
+  s_a56043ba303c80::t_63662eb34144b8 76-79,83,87,99,110
+crates/rune/src/window/tests.rs
+  s_a56043ba303c80::t_94d6ff7084f34d 701-717
+crates/rune/src/window/win.rs
+  s_a56043ba303c80::t_773b815894f95f 94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "961aaae43110ddb083fc8be21b1b5b640dc828ee",
+  "prompts": {},
+  "sessions": {
+    "s_a56043ba303c80": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "6555dec6-b9d5-456f-b330-94e3ce532b3b",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Mohak Bajaj <bmohak87@gmail.com>"
+    }
+  }
+}
