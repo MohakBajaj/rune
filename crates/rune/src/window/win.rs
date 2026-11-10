@@ -91,7 +91,7 @@ pub(super) struct Win {
     /// The last frame presented, while the window rests.
     pub(super) presented: Option<Presented>,
     /// The window's steady run after a change (`STEADY`).
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     pub(super) steady: Steady,
     /// Its next frame (`redraw`).
     pub(super) redraw: std::cell::Cell<Redraw>,

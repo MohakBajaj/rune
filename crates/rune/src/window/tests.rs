@@ -698,3 +698,20 @@ fn a_new_gpus_device_equals_the_old_one_but_its_key_differs() {
     let (old, new) = (crate::render::Renderer::new(&old, format), crate::render::Renderer::new(&new, format));
     assert_ne!(old.device_key(), new.device_key());
 }
+
+/// After a change the window presents every refresh for `STEADY`, then rests; a frame the run
+/// alone asked for that draws nothing new doesn't extend it (Hex #689).
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+#[test]
+fn a_steady_run_holds_for_a_second_after_a_change_then_rests() {
+    use super::redraw::STEADY;
+    let t0 = Instant::now();
+    let (s, again) = Steady::Rest.step(SteadyEvent::Drew { changed: true, focused: true, now: t0 });
+    assert_eq!((s, again), (Steady::Hold { until: t0 + STEADY }, false));
+    let mid = t0 + STEADY / 2;
+    let (s, again) = s.step(SteadyEvent::Rests { now: mid });
+    assert!(again && s.held_frame(), "the run asks for the next refresh");
+    let (s, _) = s.step(SteadyEvent::Drew { changed: false, focused: true, now: mid });
+    assert_eq!(s, Steady::Hold { until: t0 + STEADY }, "an unchanged held frame doesn't extend the run");
+    assert_eq!(s.step(SteadyEvent::Rests { now: t0 + STEADY }), (Steady::Rest, false));
+}

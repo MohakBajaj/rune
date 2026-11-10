@@ -43,7 +43,7 @@ use first_frame::FirstFrame;
 mod draw;
 mod redraw;
 use redraw::{Redraw, RedrawEffect, RedrawEvent};
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 use redraw::{Steady, SteadyEvent};
 mod presented;
 pub(crate) use presented::Presented;

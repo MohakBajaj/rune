@@ -361,11 +361,13 @@ impl<S: 'static> Host<S> {
         // link going; without one its timer waits a frame in `wake_deadline`.
         let next_tick = l.next_tick(now).filter(|_| !hidden);
         let rests = !hidden && !(self.trace.is_some() && self.args.frames.is_some());
-        #[cfg(target_os = "windows")]
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
         {
-            // A frame the run alone asked for changes nothing unless it draws something new.
+            // A frame the run alone asked for changes nothing unless it draws something new. A
+            // Mac display follows any window that presents, focused or not: a pointer over a
+            // floating panel hovers it without focusing it.
             let changed = !l.steady.held_frame() || (self.comp.is_none() && !l.presented.as_ref().is_some_and(|p| p.same(rt, &l.config)));
-            let event = if hidden { SteadyEvent::Ends } else { SteadyEvent::Drew { changed, focused: rt.has_window_focus(), now } };
+            let event = if hidden { SteadyEvent::Ends } else { SteadyEvent::Drew { changed, focused: rt.has_window_focus() || cfg!(target_os = "macos"), now } };
             l.steady = l.steady.step(event).0;
         }
         self.idle = Presented::settle(&mut l.presented, rt, &l.config, animating || self.frame_move.is_some(), next_tick, rests, self.comp.is_some());
@@ -378,13 +380,18 @@ impl<S: 'static> Host<S> {
                 l.surface_ok = false;
             }
         }
-        #[cfg(target_os = "windows")]
-        if self.idle && !hidden {
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
+        let held = self.idle && !hidden && {
             let (steady, again) = l.steady.step(SteadyEvent::Rests { now });
             l.steady = steady;
-            if again { l.request_redraw(); }
-        }
-        if !hidden && (!self.idle || (self.trace.is_some() && self.args.frames.is_some())) {
+            again
+        };
+        #[cfg(target_os = "windows")]
+        if held { l.request_redraw(); }
+        // On a Mac the display link below paces the run's frames.
+        #[cfg(not(target_os = "macos"))]
+        let held = false;
+        if !hidden && (!self.idle || held || (self.trace.is_some() && self.args.frames.is_some())) {
             // Without a running display link, macOS hands out drawables faster than the
             // display shows them, so a timer paces the next frame instead of the loop.
             #[cfg(target_os = "macos")]

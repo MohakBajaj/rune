@@ -31,7 +31,7 @@ fn top_left_gravity(contents_flipped: bool) -> &'static objc2::runtime::AnyObjec
 /// leaves a strip, rather than stretched to the new size and snapped back a frame later.
 /// Also tags the contents sRGB, as AppKit's own drawing is, so the compositor colour-matches
 /// them to the display (untagged, a wide-gamut display shows them oversaturated). Either
-/// surface format holds sRGB-encoded values; wgpu's reconfigures keep the tag.
+/// surface format holds sRGB-encoded values; reconfigures keep the tag.
 pub(crate) fn pin_contents_top_left(surface: &wgpu::Surface) {
     use objc2::runtime::{AnyObject, Bool};
     use objc2_core_graphics::{CGColorSpace, kCGColorSpaceSRGB};

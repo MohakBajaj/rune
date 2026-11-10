@@ -231,7 +231,7 @@ impl<S: 'static> Host<S> {
             quiet: false,
             timer_frame: TimerFrame::default(),
             presented: None,
-            #[cfg(target_os = "windows")]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             steady: Steady::Rest,
             redraw: std::cell::Cell::new(Redraw::Idle),
         });

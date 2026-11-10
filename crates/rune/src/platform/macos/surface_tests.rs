@@ -25,6 +25,22 @@ fn a_metal_layer_pins_its_contents_to_the_window_top_left() {
         let space: *mut objc2_core_graphics::CGColorSpace = unsafe { objc2_video::msg_send![layer6, colorspace] };
         let name = objc2_core_graphics::CGColorSpace::name(unsafe { space.as_ref() }).map(|n| n.to_string());
         assert_eq!(name.as_deref(), Some("kCGColorSpaceSRGB"), "the layer's contents are tagged sRGB");
+        // A reconfigure (a resize, the launch frame-latency change) keeps the tag.
+        let gpu = crate::render::Gpu::headless();
+        surface.configure(&gpu.device, &wgpu::SurfaceConfiguration {
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            format: wgpu::TextureFormat::Bgra8Unorm,
+            width: 64,
+            height: 64,
+            present_mode: wgpu::PresentMode::Fifo,
+            desired_maximum_frame_latency: 2,
+            alpha_mode: wgpu::CompositeAlphaMode::Opaque,
+            view_formats: vec![],
+            color_space: wgpu::SurfaceColorSpace::Auto,
+        });
+        let space: *mut objc2_core_graphics::CGColorSpace = unsafe { objc2_video::msg_send![layer6, colorspace] };
+        let name = objc2_core_graphics::CGColorSpace::name(unsafe { space.as_ref() }).map(|n| n.to_string());
+        assert_eq!(name.as_deref(), Some("kCGColorSpaceSRGB"), "a reconfigured layer stays tagged sRGB");
         drop(surface);
     }
 }

@@ -73,17 +73,18 @@ impl Redraw {
         }
     }
 }
-/// How long a Windows window keeps presenting every refresh after its last change. With G-SYNC
-/// or FreeSync in windowed mode the display refreshes when the foreground window presents, so a
-/// hover's lone presents swing the refresh rate, and many panels' brightness with it (Hex #689).
+/// How long a window keeps presenting every refresh after its last change. With G-SYNC or
+/// FreeSync in windowed mode, or a ProMotion or Adaptive-Sync display on a Mac, the display
+/// refreshes when the window presents, so a hover's lone presents swing the refresh rate, and
+/// many panels' brightness with it (Hex #689).
 /// A steady run at the display's rate, then rest, changes the rate once per interaction. Only the
 /// focused window holds it: the display follows the foreground window, and a window behind that
 /// presented every refresh would take frames from the others for nothing.
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 pub(super) const STEADY: Duration = Duration::from_secs(1);
 
 /// A window's steady run (`STEADY`).
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum Steady {
     /// No run: the window rests when its frames stop changing.
@@ -95,7 +96,7 @@ pub(super) enum Steady {
     HeldFrame { until: Instant },
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 #[derive(Clone, Copy, Debug)]
 pub(super) enum SteadyEvent {
     /// A frame drew: `changed` when it showed something new, `focused` when the window has focus.
@@ -106,7 +107,7 @@ pub(super) enum SteadyEvent {
     Ends,
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 impl Steady {
     /// The next state, and whether the window asks for another frame.
     pub(super) fn step(self, event: SteadyEvent) -> (Steady, bool) {
